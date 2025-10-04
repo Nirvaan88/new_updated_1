@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Marketing Template Editor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 { margin: 20px; }
+    .controls {
+      width: 100%;
+      max-width: 1200px;
+      margin-bottom: 20px;
+      background: #fff;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .template-box {
+      width: 794px;             /* Fixed A4 width */
+      height: 1123px;           /* Fixed A4 height */
+      border: 2px dashed #aaa;
+      background-color: transparent;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: relative;
+      overflow: hidden;         /* Disable scrolling */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      margin: 0 auto;
+    }
+    .draggable {
+      position: absolute;
+      cursor: move;
+    }
+    .thumbnail-slider {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      margin-top: 10px;
+      padding-bottom: 10px;
+    }
+    .thumbnail-slider img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+    .thumbnail-slider img:hover {
+      border-color: #007bff;
+     }
+    /* base styles for store name */ */ */
+  #storeFooterName {
+      position: absolute;
+      bottom: 37px;
+      left: 50px;              /* distance above bottom of #storeFooter */
+      max-width: 90%;
+      line-height: 1.2;
+      word-wrap: break-word;
+      font-weight: bold;
+      font-size: 14px;
+      color: #000;
+      z-index: 10000;
+      box-sizing: border-box;
+      text-align: left;      /* aligns text to the left */
+      transform: none; 
+      white-space: nowrap;  
+     } 
+ #storeFooterName {
+    position: absolute;
+    bottom: 37px;
+    left: 60%; 
+    transform: translateX(calc(-50% - 116px));          /* 👈 this nudges just the text */
+    max-width: 280%;
+    line-height: 1.3;
+    word-wrap: break-word; 
+    white-space: nowrap;   
+    font-weight: bold;
+    font-size: 11px;
+    color: #000;
+    z-index: 10000;
+    box-sizing: border-box;
+    text-align: center;  
+}   
+
+#storeFooterName {
+      display: flex;
+      align-items: center;
+      gap: 2px;                  /* minimal spacing */
+      white-space: nowrap;
+      font-size: clamp(10px, 1.2vw, 14px); /* min 10px, preferred 1.2vw, max 14px */
+      max-width: 90%;             /* prevent overflow */
+      overflow: hidden;
+      text-overflow: ellipsis;    /* shows ... if still too long */
+    }  
+
+.separator {
+    font-weight: bold;
+    font-size: 14px;
+    margin: 0 2px;     /* minimal space around | */
+    line-height: 1;
+}
+/* ✅ Contact logo mask (so it can be colored) */ 
+.contact-logo { display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-color: #000; /* default */
+  -webkit-mask: url("/static/images/contact_logo.png") no-repeat center; 
+ -webkit-mask-size: contain;
+  mask: url("/static/images/contact_logo.png") no-repeat center; 
+  mask-size: contain; 
+  margin-right: 5px;
+   vertical-align: middle; }
+
+</style>
+</head>
+<body>
+  <h1>Marketing Template Editor</h1>
+  <div class="controls">
+    <div>
+      <label>Upload Background Image:</label>
+      <input type="file" id="bgUpload" accept="image/*">
+    </div>
+    <div>
+      <label>Choose Background Color:</label>
+      <input type="color" id="bgColor">
+      <button onclick="applyColor()">Apply Color</button>
+    </div>
+   
+
+    <div>
+      <label>Upload Logo:</label>
+      <input type="file" id="logoUpload" accept="image/*">
+  </div>
+    <div>
+   <label>Combined Color:</label>
+   <input type="color" id="combinedColor" value="#000000">
+   <button type="button" onclick="applyCombinedColor()">Apply Combined Color</button>
+</div>
+  <div>
+  <label>Contact Logo Color:</label>
+  <input type="color" id="contactLogoColor" value="#000000">
+  <label>Store Name Color:</label>
+  <input type="color" id="storeNameColor" value="#000000">
+  <button type="button" onclick="applyColors()">Apply Colors</button>
+ </div>
+
+    <div>
+  <label>Add Footer Text:</label>
+  <input type="text" id="footerName" placeholder="Store Name">
+
+  <label>WhatsApp Number:</label>
+  <input type="text" id="footerWhatsApp" placeholder="WhatsApp Number">
+
+  <button type="button" onclick="updateFooterInfo()">Update Footer Text & WhatsApp</button>
+</div>
+    <div>
+      <button onclick="downloadPNG()">Download PNG</button>
+      <button onclick="downloadPDF()">Download (A4)</button>
+    </div>
+   <div style="margin: 20px 0; width:100%; max-width:1200px; background:#fff; padding:15px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+    <label>Upload Custom Template:</label>
+    <input type="file" id="templateUpload" accept="image/*">
+  </div>
+
+  <div id="templateBox" class="template-box">
+    <!-- Default store name + footer -->
+    <p id="storeFooterName">Default Store Name</p>
+    <div id="storeFooter"></div>
+  </div>
+
+  <h2>Templates</h2>
+  <div class="thumbnail-slider" id="templateSlider"></div>
+
+  <h2>Products</h2>
+  <div class="thumbnail-slider" id="productSlider"></div>
+
+  <h2>Banners</h2>
+  <div class="thumbnail-slider" id="bannerSlider"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    const templateBox = document.getElementById("templateBox");
+    const templateSlider = document.getElementById("templateSlider");
+    const productSlider = document.getElementById("productSlider");
+    const bannerSlider = document.getElementById("bannerSlider");
+
+    function makeDraggable(el) {
+      el.onmousedown = function(e) {
+        e.preventDefault();
+        let shiftX = e.clientX - el.getBoundingClientRect().left;
+        let shiftY = e.clientY - el.getBoundingClientRect().top;
+        function moveAt(pageX, pageY) {
+          el.style.left = pageX - shiftX - templateBox.getBoundingClientRect().left + "px";
+          el.style.top = pageY - shiftY - templateBox.getBoundingClientRect().top + "px";
+        }
+        function onMouseMove(e) {
+          moveAt(e.pageX, e.pageY);
+        }
+        document.addEventListener("mousemove", onMouseMove);
+        document.onmouseup = function() {
+          document.removeEventListener("mousemove", onMouseMove);
+          document.onmouseup = null;
+        };
+      };
+      el.ondragstart = function() { return false; };
+    }
+
+    document.getElementById("bgUpload").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          templateBox.style.backgroundImage = `url(${ev.target.result})`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function applyColor() {
+      const color = document.getElementById("bgColor").value;
+      templateBox.style.backgroundImage = "";
+      templateBox.style.backgroundColor = color;
+    }
+
+    document.getElementById("logoUpload").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          const logo = document.createElement("img");
+          logo.src = ev.target.result;
+          logo.className = "draggable";
+          logo.style.width = "150px";
+          logo.style.height = "auto";
+          logo.style.top = "20px";
+          logo.style.left = "20px";
+          templateBox.appendChild(logo);
+          makeDraggable(logo);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function addFooter() {
+      const storeNameInput = document.getElementById("footerName").value;
+      const storeNameEl = document.getElementById("storeFooterName");
+      storeNameEl.textContent = storeNameInput || "Default Store Name";
+    }
+
+    async function downloadPNG() {
+      const canvas = await html2canvas(templateBox);
+      const link = document.createElement("a");
+      link.download = "template.png";
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const canvas = await html2canvas(templateBox, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "pt", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
+      pdf.save("template.pdf");
+    }
+
+    // Preloaded templates
+    const preloadedTemplates = ["template1.jpg", "template2.jpg"];
+    preloadedTemplates.forEach(src => {
+      const slide = document.createElement("img");
+      slide.src = src;
+      templateSlider.appendChild(slide);
+      slide.addEventListener("click", function() {
+        templateBox.style.width = "794px";
+        templateBox.style.height = "1123px";
+        templateBox.style.margin = "0 auto";
+        templateBox.style.display = "block";
+        templateBox.style.backgroundImage = `url(${src})`;
+        templateBox.style.backgroundSize = "cover";
+        templateBox.style.backgroundPosition = "center";
+        templateBox.style.backgroundRepeat = "no-repeat";
+        Array.from(templateBox.children).forEach(child => {
+          if (child.id !== "storeFooter" && child.id !== "storeFooterName") child.remove();
+        });
+      });
+    });
+
+    // Custom template upload
+    document.getElementById("templateUpload").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          const slide = document.createElement("div");
+          slide.className = "slide";
+          slide.innerHTML = `<img src="${ev.target.result}" alt="Custom Template">
+                             <div class="name">Custom Template</div>`;
+          slide.addEventListener("click", function() {
+            templateBox.style.width = "794px";
+            templateBox.style.height = "1123px";
+            templateBox.style.margin = "0 auto";
+            templateBox.style.display = "block";
+            templateBox.style.backgroundImage = `url(${ev.target.result})`;
+            templateBox.style.backgroundSize = "cover";
+            templateBox.style.backgroundPosition = "center";
+            templateBox.style.backgroundRepeat = "no-repeat";
+            Array.from(templateBox.children).forEach(child => {
+              if (child.id !== "storeFooter" && child.id !== "storeFooterName") child.remove();
+            });
+            if (!document.getElementById("storeFooterName")) {
+              const nameEl = document.createElement("p");
+              nameEl.id = "storeFooterName";
+              nameEl.textContent = "Default Store Name";
+              templateBox.appendChild(nameEl);
+            }
+          });
+          templateSlider.appendChild(slide);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+  <script>
+  function applyStoreNameColor() {
+    const color = document.getElementById("storeNameColor").value;
+    const storeName = document.getElementById("storeFooterName");
+    if (storeName) {
+      storeName.style.color = color;
+    }
+  }
+</script>
+<script>
+function updateFooterInfo() {
+  const storeNameVal = document.getElementById("footerName").value.trim() || "Store Name";
+  const whatsappVal = document.getElementById("footerWhatsApp").value.trim();
+
+  // WhatsApp SVG logo with adjusted size
+  const waSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14" height="14" style="vertical-align: middle;">
+                   <path d="M16 .7C7.6.7.7 7.6.7 16c0 2.8.7 5.6 2.1 8L.7 31.3l7.5-2.1A15.3 15.3 0 0 0 16 31.3C24.4 31.3 31.3 24.4 31.3 16S24.4.7 16 .7zM24.3 20.3c-.4-.2-2.3-1.1-2.6-1.2-.4-.1-.6-.2-.9.2-.2.4-1 1.2-1.2 1.5-.2.3-.4.3-.8.1s-1.6-.6-3.1-1.9c-1.1-1-1.9-2.2-2.1-2.6-.2-.4 0-.6.2-.8.2-.2.4-.4.6-.6.2-.2.3-.4.4-.6.1-.2.1-.5 0-.7-.1-.2-.9-2.1-1.2-2.8-.3-.7-.6-.6-.8-.6l-.7-.02c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.9 0 1.7 1.3 3.4 1.5 3.6.2.2 2.5 3.1 6 4.7 3.5 1.5 3.5 1 4.2.9.6-.1 2.1-.9 2.4-1.7.3-.9.3-1.6.2-1.8-.1-.1-.3-.2-.7-.4z"/>
+                 </svg>`;
+
+  // Thicker, taller separator |, minimal spacing
+  const separator = `<span style="font-weight:bold; font-size:18px; display:inline-block; transform:scaleY(1.3); margin:0 2px;">|</span>`;
+
+  // Update footer
+  const footerEl = document.getElementById("storeFooterName");
+  footerEl.innerHTML = `${storeNameVal}${separator}${waSvg} ${whatsappVal}`;
+}
+</script>
+<script>
+  function updateFooterInfo() {
+  const storeNameVal = document.getElementById("footerName").value.trim() || "Default Store Name";
+  const whatsappVal = document.getElementById("footerWhatsApp").value.trim();
+  const separator = `<span style="font-weight:bold; font-size:18px; margin:0 6px;">|</span>`;
+
+  // Use a span with .contact-logo class for coloring
+  const contactLogo = `<span class="contact-logo"></span>`;
+
+  let footerHTML = storeNameVal;
+  if (whatsappVal) footerHTML += separator + contactLogo + whatsappVal;
+
+  const footerEl = document.getElementById("storeFooterName");
+  if (footerEl) {
+    footerEl.innerHTML = footerHTML;
+    footerEl.style.whiteSpace = "nowrap";
+    footerEl.style.display = "flex";
+    footerEl.style.alignItems = "center";
+    footerEl.style.gap = "4px";
+  }
+}
+</script>
+<script>
+  function applyCombinedColor() {
+    const color = document.getElementById("combinedColor").value;
+    
+    // Update store name text color directly.
+    const storeName = document.getElementById("storeFooterName");
+    if (storeName) {
+      storeName.style.color = color;
+    }
+    
+    // For the contact logo, use a drop-shadow filter to "tint" the image.
+    // This method works best if the original logo is monochrome (pure black).
+    const logos = document.querySelectorAll('img[alt="Contact Logo"]');
+    logos.forEach(function(logo) {
+      // The filter below converts the logo to pure black (brightness(0) saturate(100%))
+      // then applies a drop-shadow with the chosen color.
+      logo.style.filter = `brightness(0) saturate(100%) drop-shadow(0 0 0 ${color})`;
+    });
+  }
+</script>
+<script>
+function applyColors() {
+  // Store Name color
+  const storeNameColor = document.getElementById("storeNameColor").value;
+  const storeName = document.getElementById("storeFooterName");
+  if (storeName) storeName.style.color = storeNameColor;
+
+  // Contact Logo color
+  const logoColor = document.getElementById("contactLogoColor").value;
+  const logos = document.querySelectorAll('.contact-logo');
+  logos.forEach(logo => {
+    logo.style.backgroundColor = logoColor; // works live!
+  });
+}
+</script>
+<script>
+  function applyCombinedColor() {
+    // Get the chosen color from the color picker.
+    const color = document.getElementById("combinedColor").value;
+    
+    // Update the store name text color.
+    const storeName = document.getElementById("storeFooterName");
+    if (storeName) {
+      storeName.style.color = color;
+    }
+    
+    // For the contact logo, apply a CSS filter that tints the image.
+    // The drop-shadow filter here uses a small blur (3px) so that the chosen color is visible.
+    const logos = document.querySelectorAll('img[alt="Contact Logo"]');
+    logos.forEach(logo => {
+      // This filter first forces the logo to black (brightness(0) saturate(100%))
+      // then applies the tint using a drop-shadow with the chosen color.
+      logo.style.filter = `brightness(0) saturate(100%) drop-shadow(0 0 3px ${color})`;
+    });
+  }
+</script>
+<script>
+function updateFooterInfo() {
+  const storeNameVal = document.getElementById("footerName").value.trim() || "Store Name";
+  const whatsappVal = document.getElementById("footerWhatsApp").value.trim();
+
+  // Separator and contact logo
+  const separator = `<span class="separator">|</span>`;
+  const contactLogo = `<span class="contact-logo"></span>`;
+
+  // Footer content
+  let footerHTML = storeNameVal;
+  if (whatsappVal) footerHTML += separator + contactLogo + whatsappVal;
+
+  const footerEl = document.getElementById("storeFooterName");
+  if (footerEl) {
+    footerEl.innerHTML = footerHTML;
+    footerEl.style.display = "flex";
+    footerEl.style.alignItems = "center";
+    footerEl.style.gap = "2px";      // minimal spacing
+    footerEl.style.whiteSpace = "nowrap";
+  }
+}
+</script>
+<script>
+// Auto-adjust footer font size based on text length + logo + separator
+function adjustFooterFontSize() {
+  const footer = document.getElementById("storeFooterName");
+  if (!footer) return;
+
+  // Base text length
+  let textLength = footer.innerText.length;
+
+  // Add 10 chars for each logo inside footer
+  const logoCount = footer.querySelectorAll("img").length;
+  textLength += logoCount * 10;
+
+  // Add 1 char for each "|" separator
+  const separatorCount = (footer.innerHTML.match(/\|/g) || []).length;
+  textLength += separatorCount;
+
+  // Font size rules
+  if (textLength <= 88) {
+    footer.style.fontSize = "15px";   // large font for short
+  } else if (textLength <= 128) {
+    footer.style.fontSize = "11px";   // medium font
+  } else {
+    footer.style.fontSize = "9.5px";   // small font for long
+  }
+}
+
+// Re-run font adjustment whenever footer updates
+const originalUpdateFooterInfo = window.updateFooterInfo || function(){};
+window.updateFooterInfo = function() {
+  originalUpdateFooterInfo();  
+  adjustFooterFontSize();     
+};
+
+// Run on first load also
+window.addEventListener("load", adjustFooterFontSize);
+</script>
+</body>
+</html>
+

@@ -1,0 +1,26 @@
+ [
+  { "id":1,
+    "address":"1701-B, 17th Floor, The Capital Building, B Wing, Opp. ICICI Bank, BKC, Mumbai, Maharashtra - 400051",
+    "mobile_number":"+91 9876543210"
+  },
+  {
+    "id":2,
+    "address":"23, MG Road, Camp Area, Pune, Maharashtra - 411001",
+    "mobile_number":"+91 9123456789"
+  },
+  {
+    "id":3,
+    "address":"45, Residency Road, Indiranagar, Bengaluru, Karnataka - 560038",
+    "mobile_number":"+91 9988776655"
+  },
+  {
+    "id":4,
+    "address":"12, Park Street, Ballygunge, Kolkata, West Bengal - 700019",
+    "mobile_number":"+91 9090909090"
+  },
+  {
+    "id":5,
+    "address":"5th Avenue, Near City Center Mall, Banjara Hills, Hyderabad, Telangana - 500034",
+    "mobile_number":"+91 9012345678"
+  }
+]
